@@ -17,7 +17,7 @@ for (let i = 0; i < arguments.length; i++) {
                 break;
             }
     } else {
-        console.log(`User arguments doesn't include '=', default to port:${port}`)
+        console.log(`Invalid arguments, only accept '--port=number' as an argument, default to port:${port}`)
     }
 }
 
@@ -27,7 +27,7 @@ function writeFilePromise(path, data) {
             if (err) {
                 throw err;
             } else {
-                resolve(`Successfully write at ${path}`);
+                resolve(`Successfully write at: ${path}`);
             }
         })
     })
@@ -39,16 +39,21 @@ app.get("/", (req, res) => {
 
 app.post("/", (req, res) => {
         let data = "";
+        const reqContentType = req.headers["content-type"];
+
         req.on("data", chunk => data += chunk);
         req.on("end", async () => {
             try {
-                if (req.headers['content-type'] === "application/json") {
-                const dataObj = JSON.parse(data);
-                const {name, age, gender} = dataObj;
-                const dataJSON = JSON.stringify({name, age, gender}, null, 2);
-                const processData = await writeFilePromise("./user.json", dataJSON);
-                console.log(processData);
-                res.send("Data Recieved!");
+                if (reqContentType === "application/json") {
+                    const dataObj = JSON.parse(data);
+                    const { name, age, gender } = dataObj;
+                    const dataJSON = JSON.stringify({ name, age, gender }, null, 2);
+                    const processData = await writeFilePromise("./user.json", dataJSON);
+                    console.log(processData);
+                    res.send(`Data Received`);
+                } else {
+                    console.log(`Received: ${reqContentType}`);
+                    res.send(`Server can only handle JSON format at this time`);
                 }
             } catch (err) {
                 console.error(err);
@@ -60,7 +65,7 @@ app.post("/", (req, res) => {
 })
 
 app.listen(port, () => {
-    console.log(`Server is listening at ${port}`)
+    console.log(`Server is listening at port ${port}`);
 })
 
 
