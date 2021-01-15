@@ -17,7 +17,7 @@ for (let i = 0; i < arguments.length; i++) {
                 break;
             }
     } else {
-        console.log(`Invalid arguments, only accept '--port=number' as an argument, default to port:${port}`)
+        console.log(`Invalid arguments, only accept '--port=number' as an argument, default to port:${port}`);
     }
 }
 
@@ -50,10 +50,10 @@ app.post("/", (req, res) => {
                     const dataJSON = JSON.stringify({ name, age, gender }, null, 2);
                     const processData = await writeFilePromise("./user.json", dataJSON);
                     console.log(processData);
-                    res.send(`Data Received`);
+                    res.send("Data Received");
                 } else {
                     console.log(`Received: ${reqContentType}`);
-                    res.send(`Server can only handle JSON format at this time`);
+                    res.send("Server can only handle JSON format at this time");
                 }
             } catch (err) {
                 console.error(err);
