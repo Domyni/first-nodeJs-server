@@ -1,1 +1,2 @@
-# A simple nodeJS server
+# A simple NodeJS server
+For learning purpose.
