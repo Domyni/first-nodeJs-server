@@ -13,7 +13,7 @@ for (let i = 0; i < arguments.length; i++) {
                 port = segment[1];
                 break;
             default:
-                console.error("Only accept '--port=number'");
+                console.error("Only accept '--port=number' as an argument");
                 break;
             }
     } else {
@@ -41,28 +41,26 @@ app.post("/", (req, res) => {
         let data = "";
         req.on("data", chunk => data += chunk);
         req.on("end", async () => {
-            if (req.headers['content-type'] === "application/json") {
+            try {
+                if (req.headers['content-type'] === "application/json") {
                 const dataObj = JSON.parse(data);
                 const {name, age, gender} = dataObj;
                 const dataJSON = JSON.stringify({name, age, gender}, null, 2);
                 const processData = await writeFilePromise("./user.json", dataJSON);
                 console.log(processData);
+                res.send("Data Recieved!");
+                }
+            } catch (err) {
+                console.error(err);
             }
         })
-        res.end()
+        res.on("error", e => {
+            console.error(e);
+        });
 })
 
 app.listen(port, () => {
     console.log(`Server is listening at ${port}`)
 })
-
-
-
-
-
-
-
-
-
 
 
