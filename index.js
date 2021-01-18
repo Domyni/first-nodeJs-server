@@ -20,7 +20,7 @@ for (let i = 0; i < arguments.length; i++) {
 }
 
 const { MongoClient, ObjectId } = require("mongodb");
-const client = new MongoClient('mongodb://localhost:27017');
+const client = new MongoClient("mongodb://localhost:27017");
 
 async function handleRedbeatMongoDB() {
     try {
