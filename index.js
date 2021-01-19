@@ -19,32 +19,33 @@ for (let i = 0; i < arguments.length; i++) {
     }
 }
 
+app.listen(port, () => {
+    console.log(`Server is listening at port ${port}`);
+})
+
+app.get("/", (req, res) => {
+    res.send("Home Sweet Home");
+})
+
+app.get("/health", (req, res) => {
+    res.send("ok");
+})
+
 const { MongoClient, ObjectId } = require("mongodb");
-const client = new MongoClient("mongodb://localhost:27017");
+const client = new MongoClient("mongodb://localhost:27017", {
+        useUnifiedTopology: true
+    });
 
 async function handleRedbeatMongoDB() {
     try {
         await client.connect();
-        console.log("Connected to MongoDB");
+        console.log(`MongoConnection Status: ${client.isConnected()}`);
     } catch (err) {
         console.error(err);
     }
 
     const db = client.db("rba");
     const taskCollection = db.collection("tasks");
-
-    // Read a task
-    app.get("/task/:id", async (req, res) => {
-        const id = req.params.id;
-        try {
-            const item = await taskCollection.findOne({_id: ObjectId(id)});
-            console.log(item);
-            res.json(item);
-        } catch (err) {
-            console.error(err);
-            res.send("Item ID does not exist!");
-        }
-    })
 
     // List tasks
     app.get("/tasks", async (req, res) => {
@@ -65,7 +66,7 @@ async function handleRedbeatMongoDB() {
             if (reqContentType === "application/json") {
                 const result = await taskCollection.insertOne(data);
                 console.log(result.ops);
-                console.log("New Data Created");
+                console.log("Data created");
                 res.send("Data Received");
             } else {
                 console.log(`Received: ${reqContentType}`);
@@ -110,10 +111,4 @@ async function handleRedbeatMongoDB() {
 }
 
 handleRedbeatMongoDB();
-
-app.listen(port, () => {
-    console.log(`Server is listening at port ${port}`);
-})
-
-
 
