@@ -126,7 +126,7 @@ app.post("/user", express.json(), async (req, res) => {
         const user = new User(req.body);
         const savedUser = await user.save(); 
         console.log(savedUser);
-        console.log(`Received: ${req.body.type}`);
+        console.log(`Received: ${req.headers["content-type"]}`);
         console.log("Data created");
         res.status(201).json(savedUser);
 
@@ -190,6 +190,4 @@ app.put("/user/:id", express.json(), async (req, res) => {
         res.send("No such key(s) to update in the database!");
     }
 })
-
-
 
