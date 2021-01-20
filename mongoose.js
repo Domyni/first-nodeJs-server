@@ -132,7 +132,7 @@ app.post("/user", express.json(), async (req, res) => {
 
     } catch (err) {
         console.error(err);
-        res.status(400).send(err.message);
+        res.status(400).send(`Please ensure data is in JSON format ${err.message}`);
     }
 })
 
@@ -165,7 +165,6 @@ const keyExistsInSchema = (obj) => {
 
 // Update a user
 app.put("/user/:id", express.json(), async (req, res) => {
-    
     const id = req.params.id;
     const updateDetail = req.body;
     const opts = { 
