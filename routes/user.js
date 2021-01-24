@@ -39,7 +39,8 @@ router.post("/user/register", express.json(), async (req, res, next) => {
     }
 });
 
-// Log in and authenticate username && password
+
+// Log in, authenticate username && password
 router.post("/user/login", express.json(), async (req, res, next) => {
     const username = await User.findOne({ username: req.body.username });
     if (!username) {
@@ -61,6 +62,7 @@ router.post("/user/login", express.json(), async (req, res, next) => {
     });
 });
 
+
 // Get user data with valid token
 router.get("/user/", express(), verifyToken, async (req, res, next) => {
     res.body = req.ctxVerifiedUserData;
@@ -76,6 +78,7 @@ router.get("/user/", express(), verifyToken, async (req, res, next) => {
 });
 
 
+// Check if user's input keys exist in the schema
 const schemaKeysArr = Object.keys(User.schema.obj);
 const keyExistsInSchema = (obj) => {
     for (let prop in obj) {
@@ -88,11 +91,12 @@ const keyExistsInSchema = (obj) => {
     return false;
 };
 
+
 // Update user data
 router.put("/user/", express.json(), verifyToken, async (req, res, next) => {
-   
     const verifiedUser = req.ctxVerifiedUserData;
     const userExist = await User.findById(verifiedUser.id);
+    
     if (!userExist) {
         return next(new Error("User not found"));
     }
@@ -128,49 +132,3 @@ router.put("/user/", express.json(), verifyToken, async (req, res, next) => {
 });
 
 module.exports = router;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Delete a user
-// router.delete("/user/:id", async (req, res, next) => {
-//     const id = req.params.id;
-//     try {
-//         const user = await User.findById(id);
-//         await user.delete();
-//         console.log(`Deleted user ID '${id}'`);
-//         res.json({
-//           state: "success"
-//         });
-//     } catch (err) {
-//         console.error(err);
-//         next(new Error("ID does not exist"));
-//     }
-// });
-
-
