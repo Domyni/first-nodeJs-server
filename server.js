@@ -21,12 +21,7 @@ for (let i = 0; i < arguments.length; i++) {
     }
 }
 
-app.use("/user", usersRoute);
-
-connectToDatabase();
-app.listen(port, () => {
-    console.log(`Server is listening at port ${port}`);
-})
+app.use("/", usersRoute);
 
 app.get("/", (req, res) => {
     res.send("Home Sweet Home");
@@ -34,5 +29,15 @@ app.get("/", (req, res) => {
 
 app.get("/health", (req, res) => {
     res.send("ok");
+})
+
+app.use('/user', function (err, req, res, next) {;
+    res.status(400).json(err.message);
+})
+
+connectToDatabase();
+
+app.listen(port, () => {
+    console.log(`Server is listening at port ${port}`);
 })
 

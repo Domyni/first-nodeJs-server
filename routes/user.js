@@ -1,61 +1,80 @@
 const express = require("express");
 const User = require("../models/userModel");
 const router = express.Router();
-const userModel = require("../models/userModel");
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
+const jwt = require("jsonwebtoken");
+const verifyToken = require("../middlewares/verifyToken");
 
-// List users
-router.get("/all", async (req, res) => {
+
+// Register, Create a new user
+router.post("/user/register", express.json(), async (req, res, next) => {
+    const usernameExist = await User.findOne({ username: req.body.username });
+    const emailExist = await User.findOne({ email: req.body.email });
+
+    if (usernameExist) {
+        return next(new Error("Username already exist"));
+    } 
+    if (emailExist) {
+        return next(new Error("Email already exist"));
+    } 
+    if (req.body.password.length < 8) {
+        return next(new Error("Password must be at least 8 characters"));
+    }
+
     try {
-        const users = await User.find();
-        res.json(users);
+        const hassedPassword = await bcrypt.hash(req.body.password, saltRounds);
+        const user = new User({
+            username: req.body.username,
+            password: hassedPassword,
+            email: req.body.email
+        });
+        await user.save(); 
+        res.status(201).json({
+            state: "success"
+        });
     } catch (err) {
         console.error(err);
-        res.status(500).send(err.message);
+        next(new Error(err.message));
     }
 });
 
-// Read a user
-router.get("/:id", async (req, res) => {
-    const id = req.params.id;
+// Log in and authenticate username && password
+router.post("/user/login", express.json(), async (req, res, next) => {
+    const username = await User.findOne({ username: req.body.username });
+    if (!username) {
+        return next(new Error("Invalid username or password"));
+    } 
+    if (!await bcrypt.compare(req.body.password, username.password)) {
+        return next(new Error("Invalid username or password"));
+    } 
+
+    const token = jwt.sign({
+        id: username._id
+    }, 
+        process.env.SECRETKEY,
+    {
+        expiresIn: "1d"
+    });
+    res.json({
+        token,
+    });
+});
+
+// Get user data with valid token
+router.get("/user/", express(), verifyToken, async (req, res, next) => {
+    res.body = req.ctxVerifiedUserData;
     try {
-        const userData = await User.findById(id);
-        console.log(userData);
-        res.json(userData);
-    } catch (err) {
-        console.error(err);
-        res.status(400).send(err.message);
+        const userExist = await User.findById(res.body.id, {
+            password: 0,
+            __v: 0
+        });
+        res.json(userExist);
+    } catch {
+        return next(new Error("User not found"));
     }
 });
 
-// Create a user
-router.post("/", express.json(), async (req, res) => {
-    try {
-        const user = new User(req.body);
-        const savedUser = await user.save(); 
-        console.log(savedUser);
-        console.log(`Received: ${req.headers["content-type"]}`);
-        console.log("Data created");
-        res.status(201).json(savedUser);
-
-    } catch (err) {
-        console.error(err);
-        res.status(400).send(`Please ensure data is in JSON format ${err.message}`);
-    }
-});
-
-// Delete a user
-router.delete("/:id", async (req, res) => {
-    const id = req.params.id;
-    try {
-        const user = await User.findById(id);
-        await user.delete();
-        console.log(`Deleted user ID '${id}'`);
-        res.send(`User ID '${id}' has been deleted`);
-    } catch (err) {
-        console.error(err);
-        res.status(400).send(err.message);
-    }
-});
 
 const schemaKeysArr = Object.keys(User.schema.obj);
 const keyExistsInSchema = (obj) => {
@@ -69,31 +88,89 @@ const keyExistsInSchema = (obj) => {
     return false;
 };
 
-// Update a user
-router.put("/:id", express.json(), async (req, res) => {
-    const id = req.params.id;
+// Update user data
+router.put("/user/", express.json(), verifyToken, async (req, res, next) => {
+   
+    const verifiedUser = req.ctxVerifiedUserData;
+    const userExist = await User.findById(verifiedUser.id);
+    if (!userExist) {
+        return next(new Error("User not found"));
+    }
+    if (req.body.password || req.body.password === "") {
+        return next(new Error("We can't change your password at the moment"));
+    }
+
     const updateDetail = req.body;
     const opts = { 
         runValidators: true
     };
+
     if (keyExistsInSchema(updateDetail)) {
         try { 
             await User.updateOne({
-                _id: id
+                _id: verifiedUser.id
             },
             {
                 $set: updateDetail
             },
             opts
             );
-            res.send(`User ID:${id} has been updated. Note that only (${schemaKeysArr}) will be updated`);
+            res.json({
+            state : "success"
+            }) 
         } catch (err) {
             console.log(err);
-            res.send(err.message);
+            next(new Error(err.message));
         }
     } else {
-        res.send("No such key(s) to update in the database!");
+        next(new Error("No such data to update"));
     }
 });
 
 module.exports = router;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Delete a user
+// router.delete("/user/:id", async (req, res, next) => {
+//     const id = req.params.id;
+//     try {
+//         const user = await User.findById(id);
+//         await user.delete();
+//         console.log(`Deleted user ID '${id}'`);
+//         res.json({
+//           state: "success"
+//         });
+//     } catch (err) {
+//         console.error(err);
+//         next(new Error("ID does not exist"));
+//     }
+// });
+
+
