@@ -5,6 +5,51 @@ const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const jwt = require("jsonwebtoken");
 const verifyToken = require("../middlewares/verifyToken");
+const multer = require("multer");
+const fs = require("fs");
+
+ const storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+            const path = `avatars/${req.ctxVerifiedUserData.id}/`;
+
+            fs.access(path, function(err) {
+                if (err) {
+                    fs.mkdir(path, function(err) {
+                        console.error(err);
+                    })
+                }
+                cb(null, path);
+            })
+        },
+        filename: function (req, file, cb) {
+            const fileNameArr = file.originalname.split(".");
+            fileNameArr.pop();
+            const fileNameStr = fileNameArr.join("");
+
+            cb(null, `${fileNameStr}-${Date.now()}`);
+        }
+    });
+
+const uploader = multer({
+    storage: storage,
+    limits: {
+        fileSize: 1024 * 1024
+    },
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype !== "image/jpeg") {
+            return cb(new Error("Invalid file type, only accepts JPEG files"));
+        }
+        cb(null, true);
+    }
+});
+
+// Upload a file
+router.post("/user/avatar", verifyToken, uploader.single("avatar"), (req, res) => {
+    res.json({
+        state: "success",
+        url: `http://localhost:3000/${req.file.path}`
+    });
+});
 
 
 // Register, Create a new user
@@ -53,9 +98,9 @@ router.post("/user/login", express.json(), async (req, res, next) => {
     const token = jwt.sign({
         id: username._id
     }, 
-        process.env.SECRETKEY,
+        process.env.SECRET_KEY,
     {
-        expiresIn: "1d"
+        expiresIn: process.env.JWT_EXPIRY
     });
     res.json({
         token,
@@ -123,7 +168,7 @@ router.put("/user/", express.json(), verifyToken, async (req, res, next) => {
             state : "success"
             }) 
         } catch (err) {
-            console.log(err);
+            console.error(err);
             next(new Error(err.message));
         }
     } else {

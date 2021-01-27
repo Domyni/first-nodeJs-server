@@ -9,7 +9,7 @@ function verifyToken(req, res, next) {
 
     const token = req.header("Authorization").replace(/^Bearer /,"");
     try {
-         const data = jwt.verify(token, process.env.SECRETKEY);
+         const data = jwt.verify(token, process.env.SECRET_KEY);
          req.ctxVerifiedUserData = data;
     } catch {
         return next(new Error("Invalid Token"));
