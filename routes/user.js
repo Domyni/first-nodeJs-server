@@ -7,15 +7,14 @@ const jwt = require("jsonwebtoken");
 const verifyToken = require("../middlewares/verifyToken");
 const multer = require("multer");
 const fs = require("fs");
-const { stderr } = require("process");
 
  const storage = multer.diskStorage({
         destination: function (req, file, cb) {
             const path = `avatars/${req.ctxVerifiedUserData.id}/`;
 
-            fs.access(path, function(err) {
+            fs.access(path, err => {
                 if (err) {
-                    fs.mkdir(path, function(err) {
+                    fs.mkdir(path, err => {
                         console.error(err);
                     })
                 }
@@ -25,7 +24,6 @@ const { stderr } = require("process");
         filename: function (req, file, cb) {
             const fileNameArr = file.originalname.split(".");
             const fileExtension = fileNameArr.pop();
-
             const fileNameStr = fileNameArr.join("");
 
             cb(null, `${fileNameStr}-${Date.now()}.${fileExtension}`);
