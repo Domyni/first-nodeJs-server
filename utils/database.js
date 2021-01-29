@@ -6,7 +6,7 @@ async function connectToMongoose() {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
-        let connection = mongoose.connection.readyState === 1? "Connected to Mongoose!": "Not connected to Mongoose!";
+        const connection = mongoose.connection.readyState === 1 ? "Connected to Mongoose!": "Not connected to Mongoose!";
         console.log(connection);
     } catch (err) {
         console.error(err);
