@@ -94,7 +94,7 @@ router.post("/user/register", express.json(), async (req, res, next) => {
             url: "https://images.unsplash.com/photo-1460467820054-c87ab43e9b59?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1261&q=80",
             alt: "welcome_pic",
             width: "500px"
-        }
+        };
     
         const result = await transporter.sendMail({
             from: process.env.MAIL_USER,
