@@ -32,6 +32,8 @@ const server = app.listen(port, () => {
     console.log(`Server is listening at port ${port}`);
 });
 
+
+// Graceful Shutdown
 process.on("SIGINT", () => {
     const exitTimeout = setTimeout(() => {
         process.exit(1);
