@@ -5,24 +5,20 @@ async function verifyTransporter(transporter) {
     console.log("Verify Transporter Status: ", checkTransport);
 }
 
-function createTransporter() {
-    const transporter = nodemailer.createTransport({
-        host: process.env.MAIL_HOST,
-        port: process.env.MAIL_PORT,
-        secure: process.env.MAIL_SECURE,
-        auth: {
-            type: "login",
-            user: process.env.MAIL_USER,
-            pass: process.env.MAIL_PASSWORD
-        }
-    });
-    return transporter;
-}
+const transporter = nodemailer.createTransport({
+    host: process.env.MAIL_HOST,
+    port: process.env.MAIL_PORT,
+    secure: process.env.MAIL_SECURE,
+    auth: {
+        type: "login",
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASSWORD
+    }
+});
 
 async function sendWelcomeMail(newUserEmail, newUsername) {
-    const transporter = createTransporter();
+
     verifyTransporter(transporter);
-    
     const welcomePic = {
         url: "https://images.unsplash.com/photo-1460467820054-c87ab43e9b59?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1261&q=80",
         alt: "welcome_pic",
