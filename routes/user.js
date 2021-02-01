@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 const verifyToken = require("../middlewares/verifyToken");
 const multer = require("multer");
 const fs = require("fs");
-const { sendWelcomeMail } = require("../utils/mail");
+const { sendWelcomeMailAxious } = require("../utils/mail");
 
 const storage = multer.diskStorage({
         destination: function (req, file, cb) {
@@ -76,7 +76,7 @@ router.post("/user/register", express.json(), async (req, res, next) => {
             email: req.body.email
         });
         await user.save();
-        await sendWelcomeMail(req.body.email, req.body.username);
+        await sendWelcomeMailAxious(req.body.email, req.body.username);
         
         res.status(201).json({
             state: "success"
