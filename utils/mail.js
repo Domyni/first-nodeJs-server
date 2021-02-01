@@ -53,17 +53,18 @@ async function sendWelcomeMailNodemailer(newUserEmail, newUsername) {
 
 async function sendWelcomeMailAxious(newUserEmail, newUsername) {
     try {   
-            const response = await axios.post("https://api.sendinblue.com/v3/smtp/email", {
-                sender: {email: process.env.MAIL_USER},
-                to: [{email: `${newUserEmail}`}],
-                subject: 'Welcome Email Axious',
-                htmlContent: welcomeContent(newUsername)
-            }, {
-                headers: {
-                    'api-key': process.env.MAIL_API_KEY
-                },
-            });
-            console.log(response);
+        const response = await axios.post("https://api.sendinblue.com/v3/smtp/email", {
+            sender: {email: process.env.MAIL_USER},
+            to: [{email: `${newUserEmail}`}],
+            subject: 'Welcome Email Axious',
+            htmlContent: welcomeContent(newUsername)
+            }, 
+        {
+            headers: {
+                'api-key': process.env.MAIL_API_KEY
+            },
+        });
+        console.log(response);
     } catch (err) {
         console.error(err);
     }
